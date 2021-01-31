@@ -1,0 +1,295 @@
+#include <LiquidCrystal.h>    
+
+#include <Keypad.h> 
+
+int a=0;//Integers that will store the password 
+
+int var=0; //variable for the switch 
+
+int C1;//RANDOM number to guess 
+
+  
+
+int attempt=0; //increasing till 3 attempts 
+
+int chance=3; //decreasing chances left 
+
+const byte row = 4; //number of rows. 
+
+const byte col = 3; //number of columns. 
+
+char keys[row][col] = { 
+
+  {'1','2','3'}, 
+
+  {'4','5','6'}, 
+
+  {'7','8','9'}, 
+
+  {'*','0','#'} 
+
+}; 
+
+byte pinRow[row] = {7, 6, 5, 4}; //declaration of the pins connected to the rows 
+
+byte pinCol[col] = {3, 2, 1}; //declaration of the pins connected to the columns 
+
+  
+
+Keypad keypad = Keypad( makeKeymap(keys), pinRow, pinCol, row, col ); 
+
+LiquidCrystal lcd(8,9,10,11,12,13); //D7,D6,D4,E,RS 
+
+void setup(){ 
+
+  lcd.begin(16,2); //LCD (16 COLUMNS AND 2 ROWS) 
+
+  pinMode(A0,OUTPUT); //Green LED - Number equal 
+
+  pinMode(A1,OUTPUT); //Red LED - Number lower 
+
+  pinMode(A2,OUTPUT); //Blue LED - Number higher 
+
+  randomSeed(analogRead(A3)); 
+
+  C1 = random(1, 11); 
+
+  lcd.print("Guess The Number"); 
+
+  delay(1000); 
+
+  lcd.clear(); 
+
+} 
+
+   
+
+void loop(){ 
+
+   
+
+  char key = keypad.getKey(); 
+
+  if (key){ 
+
+   lcd.setCursor(6+var,1); 
+
+   lcd.print(key),lcd.setCursor(6+var,1); 
+
+   key=key-48; //char conversion to integers 
+
+   var++; // 
+
+   switch(var){ 
+
+    case 1: 
+
+    a=key; // store keypad value 
+
+   
+
+  if (key==0){ 
+
+    a=10; 
+
+    } 
+
+  if(a==C1){//if input is the same as secret number 
+
+    lcd.clear(); 
+
+    lcd.setCursor(1,0); 
+
+    lcd.print("You choose"); 
+
+    lcd.setCursor(13,0); 
+
+    lcd.print(a); 
+
+    delay(1000); 
+
+    lcd.clear(); 
+
+    lcd.setCursor(5,0); 
+
+    lcd.print("Congrats!"); 
+
+    lcd.setCursor(0,1); 
+
+    lcd.print(a); 
+
+    lcd.setCursor(2,1); 
+
+    lcd.print(" is the number"); 
+
+    digitalWrite(A0,HIGH);//Green LED lights up 
+
+    delay(1000); //stays on for 1 second 
+
+    lcd.clear(); 
+
+    digitalWrite(A0,LOW);//Green LED lights off 
+
+    } 
+
+  if(a<C1){//if input is the lower than secret number 
+
+    lcd.clear(); 
+
+    lcd.setCursor(1,0); 
+
+    lcd.print("You choose"); 
+
+    lcd.setCursor(13,0); 
+
+    lcd.print(a); 
+
+    delay(1000); 
+
+    lcd.clear(); 
+
+    lcd.setCursor(2,0); 
+
+    lcd.print("Wrong Number"); 
+
+    lcd.setCursor(3,1); 
+
+    lcd.print("Try Higher"); 
+
+    digitalWrite(A1,HIGH); //Red LED lights up 
+
+    delay(1000); //stays on for 1 second 
+
+    lcd.clear(); 
+
+    digitalWrite(A1,LOW); //Red led lights off 
+
+    } 
+
+   if(a>C1){//if input is higher than secret number 
+
+    lcd.clear(); 
+
+    lcd.setCursor(1,0); 
+
+    lcd.print("You choose"); 
+
+    lcd.setCursor(13,0); 
+
+    lcd.print(a); 
+
+    delay(1000); 
+
+    lcd.clear(); 
+
+    lcd.setCursor(2,0); 
+
+    lcd.print("Wrong Number"); 
+
+    lcd.setCursor(3,1); 
+
+    lcd.print("Try Lower"); 
+
+    digitalWrite(A2,HIGH); //Blue LED lights up 
+
+    delay(1000); //stays on for 1 second 
+
+    lcd.clear(); 
+
+    digitalWrite(A2,LOW); //Blue led lights off 
+
+    } 
+
+//------ For Attempt & Chances -------------------// 
+
+  
+
+  if(a==C1){ 
+
+      attempt=0;//variable remain the same 
+
+      chance=3;//because you guess the number right 
+
+    } 
+
+  else{ 
+
+      attempt ++; //1 value is added till it reaches 3 
+
+      chance --; //1 value is decreased till it reaches 0  
+
+      lcd.setCursor(7,0); 
+
+      lcd.print(chance); //print or number of chances left 
+
+      lcd.setCursor(0,1); 
+
+      lcd.print("ATTEMPT(s) LEFT"); 
+
+      delay(1000); 
+
+       if(chance==0){ // you cannot attempt anymore 
+
+          lcd.clear(); 
+
+          lcd.setCursor(5,0); 
+
+          lcd.print("No More"); 
+
+          lcd.setCursor(5,1); 
+
+          lcd.print("Attempt!"); 
+
+          delay(1000); 
+
+        } 
+
+      delay(300);lcd.clear(); 
+
+      } 
+
+  
+
+  while(attempt>=3){ //when you reach the wrong 3 times, the message will flash 
+
+      lcd.setCursor(4,0),lcd.print("GAME OVER"); 
+
+      lcd.setCursor(0,1),lcd.print(C1); 
+
+      lcd.setCursor(2,1),lcd.print(" is the number"); 
+
+      digitalWrite(A1,HIGH); //turn on the red led 
+
+      delay(500); 
+
+      lcd.clear(); 
+
+      digitalWrite(A1,LOW); 
+
+      delay(500); 
+
+  } 
+
+  
+
+   var=0; 
+
+   lcd.clear(); 
+
+  
+
+  break;//ends 
+
+  } 
+
+  
+
+} 
+
+if(!key){lcd.setCursor(1,0),lcd.print("Choose 1 - 10"),lcd.setCursor(0,1),lcd.print("(Click 0 for 10)");}//start message 
+
+  
+
+  delay(2); 
+
+} 
